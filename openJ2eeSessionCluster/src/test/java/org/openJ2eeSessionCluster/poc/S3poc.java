@@ -5,12 +5,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import org.openJ2eeSessionCluster.util.OjscUtils;
-
-import sun.misc.IOUtils;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -23,6 +22,19 @@ import com.amazonaws.services.s3.model.S3Object;
 public class S3poc {
 
   /**
+   * convert string to bytes
+   * @param bytes
+   * @return the string
+   */
+  public static byte[] stringGetBytes(String string) {
+    try {
+      return string.getBytes("UTF-8");
+    } catch (UnsupportedEncodingException unsupportedEncodingException) {
+      throw new RuntimeException("Cant convert string to bytes", unsupportedEncodingException);
+    }
+  }
+
+  /**
    * @param args
    */
   public static void main(String[] args) {
@@ -32,7 +44,7 @@ public class S3poc {
     AmazonS3 s3client = null;
     try {
       s3client = new AmazonS3Client(new PropertiesCredentials(new File(
-          "R:\\personal\\accounts\\aws_mchyzer.properties")));
+          "R:\\personal\\accounts\\aws_testuser.properties")));
       System.out.println("Uploading a new object to S3 from a file\n");
       ObjectMetadata objectMetadata = new ObjectMetadata();
 
@@ -41,7 +53,7 @@ public class S3poc {
       expiration.add(Calendar.DAY_OF_YEAR, 1);
 
       objectMetadata.setExpirationTime(expiration.getTime());
-      byte[] bytes = OjscUtils.stringGetBytes("Some string to put to AWS, new string");
+      byte[] bytes = stringGetBytes("Some string to put to AWS, new string");
       objectMetadata.setContentLength(bytes.length);
       objectMetadata.setContentType("text/plain");
 
