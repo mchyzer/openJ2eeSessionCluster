@@ -8,6 +8,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import org.openJ2eeSessionCluster.util.OjscUtils;
 
@@ -16,8 +17,11 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 public class S3poc {
 
@@ -38,14 +42,46 @@ public class S3poc {
    * @param args
    */
   public static void main(String[] args) {
-    String bucketName = "edu.upenn.isc.mchyzer.testBucket";
+//    String bucketName = "edu.upenn.isc.mchyzer.testBucket";
+    String bucketName = "edu.upenn.isc.mobile.prod.sessions";
+    
     String keyName = "123456";
 
     AmazonS3 s3client = null;
     try {
+      
+      //s3client = new AmazonS3Client(new PropertiesCredentials(new File(
+      //    "R:\\personal\\accounts\\aws_testuser.properties")));
+      
       s3client = new AmazonS3Client(new PropertiesCredentials(new File(
-          "R:\\personal\\accounts\\aws_testuser.properties")));
-      System.out.println("Uploading a new object to S3 from a file\n");
+          "R:\\aws\\aws_fast_mobile_prod.properties")));
+       
+      
+      List<Bucket> buckets = s3client.listBuckets();
+      
+      if (buckets != null) {
+        
+        for (Bucket bucket : buckets) {
+        
+          System.out.println(bucket.getName());
+          
+        }
+      
+      }
+
+      ObjectListing objectListing = s3client.listObjects(bucketName);
+      
+      System.out.println("\n#### Keys:\n");
+      
+      List<S3ObjectSummary> objectSummaries = objectListing.getObjectSummaries();
+      
+      if (objectSummaries != null) {
+        for (S3ObjectSummary s3ObjectSummary : objectSummaries) {
+          System.out.println(s3ObjectSummary.getKey());
+        }
+      }
+      
+      System.out.println("\n#### Uploading a new object to S3 from a file\n");
       ObjectMetadata objectMetadata = new ObjectMetadata();
 
       Calendar expiration = new GregorianCalendar();
